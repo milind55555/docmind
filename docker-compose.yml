@@ -1,0 +1,34 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+    volumes:
+      - docmind-data:/data
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  # Optional: run with `docker compose --profile pgvector up` and set VECTOR_STORE=pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    profiles: ["pgvector"]
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: docmind
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  docmind-data:
+  pg-data:
